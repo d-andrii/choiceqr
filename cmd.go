@@ -10,7 +10,7 @@ func GetOnlineSum(c *Client, date string) float64 {
 
 	online := 0
 	for _, x := range checks {
-		if x.Status == "closed" && x.PayBy == "online" {
+		if (x.Status == "closed" || x.Status == "pre_closed") && x.PayBy == "online" {
 			online += x.Total
 		}
 	}
