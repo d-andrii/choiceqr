@@ -20,7 +20,19 @@ import (
 )
 
 func main() {
+	logFile, err := os.OpenFile("./Choice.log", os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer logFile.Close()
+
+	log.SetOutput(logFile)
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+
+	log.Println("Starting")
+
 	go func() {
+		log.Println("Opening window")
 		w := app.NewWindow(app.Size(200, 200), app.Title("Choice Online"))
 		if err := run(w); err != nil {
 			log.Fatal(err)
@@ -49,15 +61,21 @@ func getOnlineSum(c *Client, date string) float64 {
 }
 
 func run(w *app.Window) error {
+	log.Println("Starting UI loop")
+
 	th := material.NewTheme(gofont.Collection())
 
 	date := time.Now()
 	sum := -1.
 
+	log.Println("Creating a client")
+
 	c, err := NewClient()
 	if err != nil {
 		return err
 	}
+
+	log.Println("Authenticating")
 
 	err = c.Auth()
 	if err != nil {
@@ -65,6 +83,7 @@ func run(w *app.Window) error {
 	}
 
 	reload := func() {
+		log.Printf("Loading data for %s", date.String())
 		sum = -1
 		w.Invalidate()
 		sum = getOnlineSum(c, date.Format("2006-01-02"))

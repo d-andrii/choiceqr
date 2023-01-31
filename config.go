@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
@@ -42,7 +43,7 @@ type OrdersResponse struct {
 }
 
 func NewClient() (*Client, error) {
-	f, err := os.ReadFile("config.json")
+	f, err := os.ReadFile("./config.json")
 	if err != nil {
 		if err == os.ErrNotExist {
 			return nil, errors.New("config.json file not found")
@@ -93,10 +94,16 @@ func (c *Client) Auth() error {
 	c.patchReq(req)
 
 	res, err := c.http.Do(req)
-	defer res.Body.Close()
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
+
+	rBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	log.Printf("URL: %s, response: %s", url, rBody)
 
 	return nil
 }
@@ -114,15 +121,16 @@ func (c *Client) GetChecksForDay(d string) ([]OrderItem, error) {
 		c.patchReq(req)
 
 		res, err := c.http.Do(req)
-		defer res.Body.Close()
 		if err != nil {
 			return nil, err
 		}
+		defer res.Body.Close()
 
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
 			return nil, err
 		}
+		log.Printf("URL: %s, response: %s", url, body)
 
 		var orders OrdersResponse
 		if err := json.Unmarshal(body, &orders); err != nil {
