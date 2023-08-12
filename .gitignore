@@ -4,6 +4,9 @@
 *.dll
 *.so
 *.dylib
+*.apk
+*.app
+*.apk.idsig
 
 # Test binary, built with `go test -c`
 *.test

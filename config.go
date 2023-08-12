@@ -2,15 +2,17 @@ package main
 
 import (
 	"bytes"
+	_ "embed"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
-	"os"
 )
+
+//go:embed config.json
+var configfile []byte
 
 type Client struct {
 	config Config
@@ -43,17 +45,8 @@ type OrdersResponse struct {
 }
 
 func NewClient() (*Client, error) {
-	f, err := os.ReadFile("./config.json")
-	if err != nil {
-		if err == os.ErrNotExist {
-			return nil, errors.New("config.json file not found")
-		} else {
-			return nil, err
-		}
-	}
-
 	c := &Client{}
-	if err = json.Unmarshal(f, &c.config); err != nil {
+	if err := json.Unmarshal(configfile, &c.config); err != nil {
 		return nil, err
 	}
 
